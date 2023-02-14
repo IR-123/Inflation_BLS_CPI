@@ -21,16 +21,16 @@ item_basket_topline <- c("All items", "All items less food and energy", "Energy"
 item_basket_watch_categories <- c("All items", "New and used motor vehicles", "Shelter", "Other services",
                                   "Medical care services", "Food", "Energy", "Commodities less food and energy commodities")
 
-cpi0 <- cpi_data %>%
-  filter(period != "M13") %>%
+cpi0 <- cpi_data %>% 
+  filter(period != "M13") %>% 
   filter(seasonal == "S") %>%
   arrange(date) %>%
   group_by(item_name) %>%
-  mutate(Pchange1 = (value/lag(value)-1)) %>% 
-  mutate(Wchange1 = (Pchange1*weight)/100) %>%
-  mutate(Wchange1a = (1 + Wchange1)^12 - 1) %>%
-  mutate(Pchange3 = (value/lag(value, 3)-1)) %>%
-  mutate(Wchange3 = (Pchange3*weight)/100) %>%
+  mutate(Pchange1 = (value/lag(value)-1)) %>% #1 month percent change (MOM as a percent) Pchange1a would be annualized 
+  mutate(Wchange1 = (Pchange1*weight)/100) %>% #contribution to month of month 
+  mutate(Wchange1a = (1 + Wchange1)^12 - 1) %>% #monthly annualized 
+  mutate(Pchange3 = (value/lag(value, 3)-1)) %>% # 3 month change 
+  mutate(Wchange3 = (Pchange3*weight)/100) %>% 
   mutate(Wchange3a = (1 + Wchange3)^4 - 1) %>%
   mutate(Pchange6 = (value/lag(value, 6)-1)) %>%
   mutate(Wchange6 = (Pchange3*weight)/100) %>%
@@ -44,7 +44,6 @@ cpi0 <- cpi_data %>%
 
 ################################################## CONTRIBUTION ###############################################################
 #### pre -pandemic contribution as 2014 -2019 --- PRE VALUE
-
 
 average_month_pre_pandemic <- cpi0 %>%
   filter(date == "2014-01-01" | date == "2019-12-01") %>%

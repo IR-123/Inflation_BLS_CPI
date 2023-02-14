@@ -115,7 +115,7 @@ cpi %>% filter(date > "2020-12-01", item_name == "All items less food and energy
        caption ="BLS, CPI, 2022 weights, seasonally adjusted. Author's calculation. Ira Regmi, Roosevelt Institute") +
   theme_inflation +
   scale_fill_brewer(palette="Paired") +
-  scale_y_continuous(labels = percent) +  scale_x_date(date_labels = "%b %y", breaks= "2 month") + 
+  scale_y_continuous(labels = percent) +  scale_x_date(date_labels = "%b %y", breaks= "1 month") + 
   geom_line(aes(x=date, y=trend), linetype="dotted", size=1.2, color = "black", alpha=1)
 geom_text(aes(x=date, y=place_y, label=num_label), nudge_y = 0.003, size=4, color="black") +
   theme(legend.position = "bottom", legend.title = element_blank(), legend.text = element_text(size=18),
