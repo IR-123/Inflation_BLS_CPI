@@ -27,6 +27,7 @@ cpi0 <- cpi_data %>%
   arrange(date) %>%
   group_by(item_name) %>%
   mutate(Pchange1 = (value/lag(value)-1)) %>% #1 month percent change (MOM as a percent) Pchange1a would be annualized 
+  mutate(Pchange1a = (1 + Pchange1)^12 - 1) %>%
   mutate(Wchange1 = (Pchange1*weight)/100) %>% #contribution to month of month 
   mutate(Wchange1a = (1 + Wchange1)^12 - 1) %>% #monthly annualized 
   mutate(Pchange3 = (value/lag(value, 3)-1)) %>% # 3 month change 
@@ -165,7 +166,7 @@ p12_value_2022 <- cpi0 %>%
   filter(date == "2021-12-01" | date == "2022-12-01") %>%
   group_by(item_name) %>%
   arrange(date) %>%
-  summarize(p12_2022 = (1 + (value/lag(value)-1))^12 - 1) %>%
+  summarize(p12_2022 = (1 + (value/lag(value)-1))^12 - 1) %>% #### 12 month change - no need to annualized 
   ungroup() %>%
   filter(!is.na(p12_2022))
 
@@ -174,7 +175,7 @@ cpi <- cpi0 %>%
   mutate(P12_change_2023 = value/lag(value, months2023)-1) %>% 
   mutate(W12_change_2023 = (P12_change_2023*weight)/100) %>%
   mutate(W12_change_2023a = (1+W12_change_2023)^(12/months2023)-1) %>%
-  mutate(Pchange_2023_YOY = (1 + (value/lag(value)-1))^(12/months2023) - 1) %>%
+  #mutate(Pchange_2023_YOY = (1 + (value/lag(value, months2023)-1))^(12/months2023) - 1) %>% #### 1 month change 
   select(item_name, date, value, weight, Pchange1, Wchange1a, P12_change_2023, W12_change_2023a, Wchange12, Pchange_2023_YOY) %>%
    #select(item_name, date, value, weight, Pchange1, Wchange1a, Wchange12) %>%
   ungroup() %>%
