@@ -31,7 +31,7 @@ theme_inflation <- theme_classic() +
         axis.text.y = element_text(size = 8),
         legend.title = element_blank())
 
-
+cpi <- cpi_data 
 #YOY#
 
 CORE_YOY <- cpi %>%
@@ -39,7 +39,7 @@ CORE_YOY <- cpi %>%
   filter(seasonal == "S") %>%
   arrange(date) %>%
   group_by(item_name) %>% ##(group_by tells R to perform a function within a group)
-  filter(item_name == "All items less food and energy") %>% 
+  filter(item_name == "All items") %>% 
   mutate(PchangeYOY = (value/lag(value, 12)-1)) 
 date = as.Date(CORE_YOY$date)
 CORE_YOY <- CORE_YOY %>% 
@@ -48,7 +48,7 @@ filter(year >= 2022)#%>%
 #filter(date == max(date) | date == "2020-02-01" | date == "2023-02-01"| date == "2023-01-01")
  
 CORE_YOY <- CORE_YOY %>%
-  mutate(num_label_1 = replace(num_label, date <= "2022-02-01", "")) 
+  mutate(num_label_1 = replace(num_label, date <= "2022-04-01", "")) 
 
 #CPI_Labels <- CORE_YOY 
 #CPI_Labels$num_label_new <-NA
@@ -67,7 +67,7 @@ ggplot(CORE_YOY, aes(x = date, y = PchangeYOY, fill = item_name,)) +
   geom_text(data = CORE_YOY, aes(x=date, y=PchangeYOY, label=num_label), nudge_y = 0.003, size=4, face="bold", color="#1E8456")+
   labs(y = NULL,
        x = NULL,
-       title = "Monthly Year Over Year Percent Increase in Core Goods and Services",
+       title = "Monthly Year Over Year Percent Increase in  Goods and Services",
        subtitle = "Core inflation is the lowest since 2022", 
        caption ="BLS, CPI, 2022 weights, seasonally adjusted. Author's calculation. Ira Regmi, Roosevelt Institute")
    
@@ -268,7 +268,7 @@ ggsave("FigY.6.0.png", dpi="retina", width = 12, height=6.75, units = "in")
 
 
 #################################### PICK AN ITEM 
-Pick_Item <- c("Airline fares") 
+Pick_Item <- c("Shelter") 
 Pick_Item <- cpi %>%
   filter(period != "M13") %>%
   filter(seasonal == "S") %>%
@@ -294,12 +294,28 @@ ggplot(Pick_Item, aes(x = date, y = PchangeYOY, fill = item_name,)) +
   scale_y_continuous(labels = percent) + 
   scale_x_date(date_labels = "%b %y", breaks= "3 month") +
   #geom_text(aes(label = num_label), check_overlap = TRUE) +
-  geom_text(data = Pick_Item, aes(x=date, y=PchangeYOY, label=num_label), nudge_y = 0.03, size=3, face="bold", color="#1E8456")+
+  geom_text(data = Pick_Item, aes(x=date, y=PchangeYOY, label=num_label), nudge_y = 0.003, size=3, face="bold", color="#1E8456")+
   labs(y = NULL,
        x = NULL,
-       title = "Airfare Prices",
-       subtitle = "TKTK", 
+       title = "Year-Over-Year Shelter Prices",
+       subtitle = "Shelter prices see a marginal dip - may have peaked", 
        caption ="BLS, CPI, 2022 weights, seasonally adjusted. Author's calculation. Ira Regmi, Roosevelt Institute")
 
 ggsave("Fig Y.7.0.png", dpi="retina", width = 12, height=6.75, units = "in")
 
+####### 
+##################Contribution 
+months2023 <- interval(ymd("2022-12-01"), max(cpi$date)) 
+months2023 = months2023 %/% months(1)
+
+Contribution <- cpi %>%
+  group_by(item_name) %>%
+  mutate(Pchange_2023 = value/lag(value, months2023)-1) %>% 
+  mutate(Wchange_2023 = (Pchange_2023*weight)/100) %>%
+  mutate(Wchange_2023a = (1+Wchange_2023)^(12/months2023)-1)
+  
+Contibution %>% filter(item_name %in% c("All items less food and energy", "Shelter", "Rent of primary residence", "Services less energy services", "Commodities less food and energy commodities", "New and used motor vehicles", "Used cars and trucks")) %>%
+  filter(date == max(date)) %>%
+  ####select(item_name, Pchange1)
+  #select(`Category` = item_name, `Before Crisis Value` = pre_value, `Contribution to Inflation, 2021` = v_2021, `Contribution to Inflation, 2022` = v_2022, `Contribution to Inflation, 2023` = Wchange_2023a)
+  select(item_name, date, value, `Contribution to Inflation, 2023` = Wchange_2023a)

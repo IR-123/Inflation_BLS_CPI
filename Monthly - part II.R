@@ -119,7 +119,7 @@ cpi %>% filter(item_name %in% c("All items less food and energy", "Shelter", "Re
   filter(date == max(date)) %>%
   ####select(item_name, Pchange1)
   #select(`Category` = item_name, `Before Crisis Value` = pre_value, `Contribution to Inflation, 2021` = v_2021, `Contribution to Inflation, 2022` = v_2022, `Contribution to Inflation, 2023` = Wchange_2023a)
-select(`Contribution to Inflation, 2023` = Wchange_2023a)
+  select(item_name, date, value, `Contribution to Inflation, 2023` = Wchange_2023a)
 ####################### CONTRIBUTION GRAPH ############################
 
 

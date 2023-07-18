@@ -33,15 +33,23 @@ theme_inflation <- theme_classic() +
 
 #### mutate(Pchange3 = (value/lag(value, 3)-1)) %>% # 3 month change 
 #3-MOM#
+cpi <- cpi_data 
+#months2023 <- interval(ymd("2022-12-01"), max(cpi$date)) 
+#months2023 = months2023 %/% months(1)
+
 
 CORE_MOM <- cpi %>%
   filter(period != "M13") %>%
   filter(seasonal == "S") %>%
   arrange(date) %>%
   group_by(item_name) %>% ##(group_by tells R to perform a function within a group)
-  filter(item_name == "All items less food and energy") %>% 
-  mutate(PchangeMOM3 = (value/lag(value, 3)-1)) 
-date = as.Date(CORE_MOM$date)
+  filter(item_name == "All items") %>% 
+  mutate(PchangeMOM3a = (value/lag(value, 3)-1)) %>%
+  mutate(PchangeMOM3 = (1 + PchangeMOM3a)^4 - 1) 
+  
+  
+ 
+  date = as.Date(CORE_MOM$date)
 CORE_MOM <- CORE_MOM %>% 
   mutate(num_label = round(100*PchangeMOM3, 2))%>% 
   filter(year >= 2022)#%>% 
@@ -64,14 +72,14 @@ ggplot(CORE_MOM, aes(x = date, y = PchangeMOM3, fill = item_name,)) +
   scale_y_continuous(labels = percent) + 
   scale_x_date(date_labels = "%b %y", breaks= "1 month") +
   #geom_text(aes(label = num_label), check_overlap = TRUE) +
-  geom_text(data = CORE_MOM, aes(x=date, y=PchangeMOM3, label=num_label), nudge_y = 0.0003, size=4, face="bold", color="#1E8456")+
+  geom_text(data = CORE_MOM, aes(x=date, y=PchangeMOM3, label=num_label), nudge_y = 0.003, size=4, face="bold", color="#1E8456")+
   labs(y = NULL,
        x = NULL,
-       title = "3-Month Percent Increase in Core Goods and Services",
+       title = "3-Month Percent Increase in  Goods and Services, annualized",
        subtitle = "TKTK", 
        caption ="BLS, CPI, 2022 weights, seasonally adjusted. Author's calculation. Ira Regmi, Roosevelt Institute")
 
-ggsave("Fig 3M.1.png", dpi="retina", width = 12, height=6.75, units = "in")
+ggsave("Fig 3M.1a.png", dpi="retina", width = 12, height=6.75, units = "in")
 
 
 
@@ -90,7 +98,8 @@ Services_Less_Rent <- cpi %>%
   arrange(date) %>%
   group_by(item_name) %>% ##(group_by tells R to perform a function within a group)
   filter(item_name == "Services less rent of shelter") %>% 
-  mutate(PchangeMOM3 = (value/lag(value, 3)-1))
+  mutate(PchangeMOM3a = (value/lag(value, 3)-1)) %>%
+  mutate(PchangeMOM3 = (1 + PchangeMOM3a)^4 - 1) 
 date = as.Date(Services_Less_Rent$date)
 Services_Less_Rent <- Services_Less_Rent %>% 
   mutate(num_label = round(100*PchangeMOM3, 2))%>% 
@@ -109,7 +118,7 @@ ggplot(Services_Less_Rent, aes(x = date, y = PchangeMOM3, fill = item_name,)) +
   scale_y_continuous(labels = percent) + 
   scale_x_date(date_labels = "%b %y", breaks= "2 month") +
   #geom_text(aes(label = num_label), check_overlap = TRUE) +
-  geom_text(data = Services_Less_Rent, aes(x=date, y=PchangeMOM3, label=num_label), nudge_y = 0.0003, size=3, face="bold", color="#1E8456")+
+  geom_text(data = Services_Less_Rent, aes(x=date, y=PchangeMOM3, label=num_label), nudge_y = 0.003, size=3, face="bold", color="#1E8456")+
   labs(y = NULL,
        x = NULL,
        title = "3 Month Percent Increase in Services Less Rent of Shelter",
@@ -129,7 +138,8 @@ Food <- cpi %>%
   arrange(date) %>%
   group_by(item_name) %>% ##(group_by tells R to perform a function within a group)
   filter(item_name == "Food") %>% 
-  mutate(PchangeMOM3 = (value/lag(value, 3)-1))
+  mutate(PchangeMOM3a = (value/lag(value, 3)-1)) %>%
+  mutate(PchangeMOM3 = (1 + PchangeMOM3a)^4 - 1) 
 date = as.Date(Food$date)
 Food <- Food %>% 
   mutate(num_label = round(100*PchangeMOM3, 2))%>% 
@@ -167,7 +177,8 @@ Goods <- cpi %>%
   arrange(date) %>%
   group_by(item_name) %>% ##(group_by tells R to perform a function within a group)
   filter(item_name %in% Goods_List) %>%
-  mutate(PchangeMOM3 = (value/lag(value, 3)-1))
+  mutate(PchangeMOM3a = (value/lag(value, 3)-1)) %>%
+  mutate(PchangeMOM3 = (1 + PchangeMOM3a)^4 - 1) 
 date = as.Date(Goods$date)
 
 Goods <- Goods %>% 
@@ -189,21 +200,22 @@ ggplot(Goods, aes(x = date, y = PchangeMOM3)) +
   labs(y = NULL,
        x = NULL,
        title = "3-Month Percentage Change in  Goods Prices",
-       subtitle = "Used Cars saw significant decline in prices", 
+       subtitle = "Used car prices increase for the first time in 9 months", 
        caption ="BLS, CPI, 2022 weights, seasonally adjusted. Author's calculation. Ira Regmi, Roosevelt Institute")
 
 ggsave("Fig 3M.4.0.png", dpi="retina", width = 12, height=6.75, units = "in")
 
 ####  Shelter, Energy and Transportation Services
 
-Services_List <- c("Energy services", "Motor vehicle insurance", "Airline fares") 
+Services_List <- c("Energy", "Food", "Commodities less food and energy commodities", "Shelter") 
 Services <- cpi %>%
   filter(period != "M13") %>%
   filter(seasonal == "S") %>%
   arrange(date) %>%
   group_by(item_name) %>% ##(group_by tells R to perform a function within a group)
   filter(item_name %in% Services_List) %>%
-  mutate(PchangeMOM3 = (value/lag(value, 3)-1))
+  mutate(PchangeMOM3a = (value/lag(value, 3)-1)) %>%
+  mutate(PchangeMOM3 = (1 + PchangeMOM3a)^4 - 1) 
 date = as.Date(Services$date)
 
 Services <- Services %>% 
@@ -221,11 +233,11 @@ ggplot(Services, aes(x = date, y = PchangeMOM3)) +
   scale_y_continuous(labels = percent) + 
   scale_x_date(date_labels = "%b %y", breaks= "2 month") +
   #geom_text(aes(label = num_label), check_overlap = TRUE) +
-  geom_text(data = Services, aes(x=date, y=PchangeMOM3, label=num_label), nudge_y = 0.05, size=3, face="bold", color="#1E8456")+
+  geom_text(data = Services, aes(x=date, y=PchangeMOM3, label=num_label), nudge_y = 0.15, size=3, face="bold", color="#1E8456")+
   labs(y = NULL,
        x = NULL,
-       title = "3-Month Percentage Change Services",
-       subtitle = "TKTKTK", 
+       title = "3-Month Percentage Change",
+       subtitle = "Food and energy prices stabilized, shelter inflation may have peaked", 
        caption ="BLS, CPI, 2022 weights, seasonally adjusted. Author's calculation. Ira Regmi, Roosevelt Institute")
 
 ggsave("Fig 3M.5.0.png", dpi="retina", width = 12, height=6.75, units = "in")
@@ -239,7 +251,8 @@ Shelter <- cpi %>%
   arrange(date) %>%
   group_by(item_name) %>% ##(group_by tells R to perform a function within a group)
   filter(item_name %in% Shelter_List) %>%
-  mutate(PchangeMOM3 = (value/lag(value, 3)-1))
+  mutate(PchangeMOM3a = (value/lag(value, 3)-1)) %>%
+  mutate(PchangeMOM3 = (1 + PchangeMOM3a)^4 - 1) 
 date = as.Date(Shelter$date)
 
 Shelter <- Shelter %>% 
@@ -260,21 +273,22 @@ ggplot(Shelter, aes(x = date, y = PchangeMOM3)) +
   geom_text(data = Shelter, aes(x=date, y=PchangeMOM3, label=num_label), nudge_y = 0.003, size=3, face="bold", color="#1E8456")+
   labs(y = NULL,
        x = NULL,
-       title = "3-Monthl Percentage Change Shelter",
-       subtitle = "TKTKTK", 
+       title = "3-Month Percentage Change - Shelter",
+       subtitle = "Rent inflation may have peaked and indicates ", 
        caption ="BLS, CPI, 2022 weights, seasonally adjusted. Author's calculation. Ira Regmi, Roosevelt Institute")
 
 ggsave("Fig 3M.6.0.png", dpi="retina", width = 12, height=6.75, units = "in")
 
 #################################### PICK AN ITEM 
-Pick_Item <- c("Airline fares") 
+Pick_Item <- c("Shelter") 
 Pick_Item <- cpi %>%
   filter(period != "M13") %>%
   filter(seasonal == "S") %>%
   arrange(date) %>%
   group_by(item_name) %>% ##(group_by tells R to perform a function within a group)
   filter(item_name %in% Pick_Item) %>%
-  mutate(PchangeMOM3 = (value/lag(value, 3)-1))
+  mutate(PchangeMOM3a = (value/lag(value, 3)-1)) %>%
+  mutate(PchangeMOM3 = (1 + PchangeMOM3a)^4 - 1) 
 date = as.Date(Pick_Item$date)
 Pick_Item <- Pick_Item%>% 
   mutate(num_label = round(100*PchangeMOM3, 2))%>% 
@@ -296,8 +310,8 @@ ggplot(Pick_Item, aes(x = date, y = PchangeMOM3, fill = item_name,)) +
   geom_text(data = Pick_Item, aes(x=date, y=PchangeMOM3, label=num_label), nudge_y = 0.03, size=3, face="bold", color="#1E8456")+
   labs(y = NULL,
        x = NULL,
-       title = "Airfare Prices",
-       subtitle = "TKTK", 
+       title = "Shelter- Three Month Percentage Change - Annualized",
+       subtitle = "tktktk", 
        caption ="BLS, CPI, 2022 weights, seasonally adjusted. Author's calculation. Ira Regmi, Roosevelt Institute")
 
 ggsave("Fig 3M.7.0.png", dpi="retina", width = 12, height=6.75, units = "in")

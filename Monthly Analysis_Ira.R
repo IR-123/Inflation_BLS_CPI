@@ -38,6 +38,7 @@ cpi <- cpi_data %>%
   mutate(Wchange1 = (Pchange1*weight)/100) %>%
   mutate(Wchange1a = (1 + Wchange1)^12 - 1) %>%
   mutate(Pchange3 = (value/lag(value, 3)-1)) %>%
+  mutate(Pchange3a = (1 + Pchange3)^12 - 1) %>%
   mutate(three_months = (lag(value, 1)/lag(value, 4)-1)) %>%
   mutate(Wthree_months = (three_months*weight)/100) %>%
   mutate(Wthree_monthsA = (1 + Wthree_months)^4 - 1) %>%

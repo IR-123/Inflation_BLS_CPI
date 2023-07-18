@@ -31,7 +31,7 @@ theme_inflation <- theme_classic() +
         axis.text.y = element_text(size = 8),
         legend.title = element_blank())
 
-
+cpi <- cpi_data
 #MOM#
 
 CORE_MOM <- cpi %>%
@@ -39,7 +39,7 @@ CORE_MOM <- cpi %>%
   filter(seasonal == "S") %>%
   arrange(date) %>%
   group_by(item_name) %>% ##(group_by tells R to perform a function within a group)
-  filter(item_name == "All items less food and energy") %>% 
+  filter(item_name == "All items") %>% 
   mutate(PchangeMOM = (value/lag(value)-1)) 
 date = as.Date(CORE_MOM$date)
 CORE_MOM <- CORE_MOM %>% 
@@ -67,7 +67,7 @@ ggplot(CORE_MOM, aes(x = date, y = PchangeMOM, fill = item_name,)) +
   geom_text(data = CORE_MOM, aes(x=date, y=PchangeMOM, label=num_label), nudge_y = 0.0003, size=4, face="bold", color="#1E8456")+
   labs(y = NULL,
        x = NULL,
-       title = "Monthly Percent Increase in Core Goods and Services - Month Over Month",
+       title = "Monthly Percent Increase in   Goods and Services - Month Over Month",
        subtitle = "Core inflation increased by 0.4%", 
        caption ="BLS, CPI, 2022 weights, seasonally adjusted. Author's calculation. Ira Regmi, Roosevelt Institute")
 
@@ -267,7 +267,7 @@ ggplot(Shelter, aes(x = date, y = PchangeMOM)) +
 ggsave("Fig M.6.0.png", dpi="retina", width = 12, height=6.75, units = "in")
 
 #################################### PICK AN ITEM 
-Pick_Item <- c("Airline fares") 
+Pick_Item <- c("Shelter") 
 Pick_Item <- cpi %>%
   filter(period != "M13") %>%
   filter(seasonal == "S") %>%
@@ -293,10 +293,10 @@ ggplot(Pick_Item, aes(x = date, y = PchangeMOM, fill = item_name,)) +
   scale_y_continuous(labels = percent) + 
   scale_x_date(date_labels = "%b %y", breaks= "3 month") +
   #geom_text(aes(label = num_label), check_overlap = TRUE) +
-  geom_text(data = Pick_Item, aes(x=date, y=PchangeMOM, label=num_label), nudge_y = 0.03, size=3, face="bold", color="#1E8456")+
+  geom_text(data = Pick_Item, aes(x=date, y=PchangeMOM, label=num_label), nudge_y = 0.0003, size=3, face="bold", color="#1E8456")+
   labs(y = NULL,
        x = NULL,
-       title = "Airfare Prices",
+       title = "shelter",
        subtitle = "TKTK", 
        caption ="BLS, CPI, 2022 weights, seasonally adjusted. Author's calculation. Ira Regmi, Roosevelt Institute")
 
