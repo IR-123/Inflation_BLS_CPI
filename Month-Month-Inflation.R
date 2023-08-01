@@ -44,7 +44,7 @@ CORE_MOM <- cpi %>%
 date = as.Date(CORE_MOM$date)
 CORE_MOM <- CORE_MOM %>% 
   mutate(num_label = round(100*PchangeMOM, 2))%>% 
-  filter(year >= 2022)#%>% 
+  filter(year >= 2020)#%>% 
 #filter(date == max(date) | date == "2020-02-01" | date == "2023-02-01"| date == "2023-01-01")
 
 CORE_MOM <- CORE_MOM %>%
@@ -62,7 +62,7 @@ ggplot(CORE_MOM, aes(x = date, y = PchangeMOM, fill = item_name,)) +
   geom_line(color="#2D779C", size = 1.5) + 
   theme_inflation + theme(legend.position = "none") +
   scale_y_continuous(labels = percent) + 
-  scale_x_date(date_labels = "%b %y", breaks= "1 month") +
+  scale_x_date(date_labels = "%b %y", breaks= "3 month") +
   #geom_text(aes(label = num_label), check_overlap = TRUE) +
   geom_text(data = CORE_MOM, aes(x=date, y=PchangeMOM, label=num_label), nudge_y = 0.0003, size=4, face="bold", color="#1E8456")+
   labs(y = NULL,
