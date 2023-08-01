@@ -100,6 +100,14 @@ select(item_name, v_2023) %>%
   left_join(contribution_2021, by="item_name")
 
 
+#### Mike Konczal here ####
+graph_items <-c("Used cars and trucks", "Energy", "Housing")
+contribution_All %>% filter(item_name %in% graph_items) %>%
+  pivot_longer(v_2023:v_2021, names_to = "year", values_to = "values") %>%
+  ggplot(aes(year, values)) + geom_bar(stat = "identity") + facet_wrap(~item_name, ncol = 1) + coord_flip() +
+  theme_inflation + scale_y_continuous(labels = percent) +
+  labs(subtitle="TK note the unit is 'contribution to inflation', not percent change")
+
 
 ##### Graphs
 item_basket_topline <- c("All items", "All items less food and energy", "Energy", "Food", "Commodities less food and energy commodities",
